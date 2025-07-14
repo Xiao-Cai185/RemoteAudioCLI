@@ -11,7 +11,10 @@ import (
 
 	"RemoteAudioCLI/audio"
 	"RemoteAudioCLI/utils"
+<<<<<<< HEAD
 	"github.com/hraban/opus"
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 )
 
 // Client represents a network client for audio streaming
@@ -26,11 +29,14 @@ type Client struct {
 	sequence     uint32
 	lastHeartbeat time.Time
 	
+<<<<<<< HEAD
 	// Heartbeat tracking
 	heartbeatMutex sync.RWMutex
 	lastHeartbeatSent time.Time
 	lastHeartbeatReceived time.Time
 	
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// Statistics
 	stats *utils.NetworkStats
 	
@@ -38,9 +44,12 @@ type Client struct {
 	stopChan   chan struct{}
 	errorChan  chan error
 	wg         sync.WaitGroup
+<<<<<<< HEAD
 	
 	opusEncoder *opus.Encoder
 	useOpus     bool
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 // NewClient creates a new network client
@@ -91,6 +100,7 @@ func (c *Client) Start(inputDevice *audio.DeviceInfo) error {
 	
 	c.logger.Info("🎤 Audio capturer initialized")
 	
+<<<<<<< HEAD
 	// 初始化心跳包时间
 	c.heartbeatMutex.Lock()
 	c.lastHeartbeatSent = time.Now()
@@ -102,11 +112,18 @@ func (c *Client) Start(inputDevice *audio.DeviceInfo) error {
 	go c.audioStreamingLoop()
 	go c.heartbeatLoop()
 	go c.packetProcessingLoop() // 新增：处理服务端数据包
+=======
+	// Start background routines
+	c.wg.Add(3)
+	go c.audioStreamingLoop()
+	go c.heartbeatLoop()
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	go c.errorHandlingLoop()
 	
 	// Monitor shutdown signals
 	go c.monitorShutdown()
 	
+<<<<<<< HEAD
 	c.useOpus = c.config.Compression
 	if c.useOpus {
 		validOpusRates := map[int]bool{8000: true, 12000: true, 16000: true, 24000: true, 48000: true}
@@ -120,6 +137,8 @@ func (c *Client) Start(inputDevice *audio.DeviceInfo) error {
 		}
 	}
 	
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// Start audio capture
 	if err := c.capturer.Start(c.onAudioData); err != nil {
 		c.Stop()
@@ -140,6 +159,7 @@ func (c *Client) Start(inputDevice *audio.DeviceInfo) error {
 
 // Stop gracefully shuts down the client
 func (c *Client) Stop() {
+<<<<<<< HEAD
 	// 使用原子操作确保只执行一次
 	oldValue := atomic.SwapInt32(&c.connected, 0)
 	if oldValue == 0 {
@@ -149,6 +169,16 @@ func (c *Client) Stop() {
 	
 	c.logger.Info("🛑 Stopping client...")
 	
+=======
+	c.logger.Info("🛑 Stopping client...")
+	
+	// Mark as disconnected
+	if atomic.LoadInt32(&c.connected) == 1 {
+		atomic.StoreInt32(&c.connected, 0)
+		DecrementConnections()
+	}
+	
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// Stop audio capture
 	if c.capturer != nil {
 		c.capturer.Stop()
@@ -160,6 +190,7 @@ func (c *Client) Stop() {
 		c.conn.Close()
 	}
 	
+<<<<<<< HEAD
 	// Signal stop to all goroutines (使用安全的关闭方式)
 	select {
 	case <-c.stopChan:
@@ -167,6 +198,10 @@ func (c *Client) Stop() {
 	default:
 		close(c.stopChan)
 	}
+=======
+	// Signal stop to all goroutines
+	close(c.stopChan)
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	
 	// Wait for goroutines to finish with timeout
 	done := make(chan struct{})
@@ -182,9 +217,12 @@ func (c *Client) Stop() {
 		c.logger.Warn("⚠️  Client goroutines did not stop within timeout")
 	}
 	
+<<<<<<< HEAD
 	// 减少连接计数
 	DecrementConnections()
 	
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	c.logger.Info("✅ Client stopped")
 }
 
@@ -193,10 +231,14 @@ func (c *Client) monitorShutdown() {
 	select {
 	case <-GetShutdownChannel():
 		c.logger.Info("🛑 Shutdown signal received")
+<<<<<<< HEAD
 		// 只有在还连接时才调用Stop
 		if atomic.LoadInt32(&c.connected) == 1 {
 			c.Stop()
 		}
+=======
+		c.Stop()
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	case <-c.stopChan:
 		return
 	}
@@ -222,17 +264,25 @@ func (c *Client) connect() error {
 func (c *Client) handshake() error {
 	c.logger.Info("🤝 Starting handshake...")
 	
+<<<<<<< HEAD
 	var compression uint8 = 0
 	if c.config.Compression {
 		compression = 1
 	}
+=======
+	// Create handshake configuration
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	handshakeConfig := &HandshakeConfig{
 		SampleRate:      uint32(c.config.SampleRate),
 		Channels:        uint8(c.config.Channels),
 		BitDepth:        uint8(c.config.BitDepth),
 		FramesPerBuffer: uint16(c.config.FramesPerBuffer),
 		BufferCount:     uint8(c.config.BufferCount),
+<<<<<<< HEAD
 		Compression:     compression,
+=======
+		Compression:     0, // No compression for now
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 	
 	// Validate configuration
@@ -271,9 +321,14 @@ func (c *Client) handshake() error {
 	// Update client configuration with server's preferred settings
 	c.updateConfigFromServer(&serverConfig)
 	
+<<<<<<< HEAD
 	c.logger.Infof("✅ Handshake successful - Sample Rate: %dHz, Channels: %d, Bit Depth: %d, compress: Opus %s",
 		serverConfig.SampleRate, serverConfig.Channels, serverConfig.BitDepth,
 		map[bool]string{true: "ON", false: "OFF"}[c.config.Compression])
+=======
+	c.logger.Infof("✅ Handshake successful - Sample Rate: %dHz, Channels: %d, Bit Depth: %d",
+		serverConfig.SampleRate, serverConfig.Channels, serverConfig.BitDepth)
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	
 	return nil
 }
@@ -293,6 +348,7 @@ func (c *Client) onAudioData(audioData []byte) {
 	if atomic.LoadInt32(&c.connected) == 0 || IsShutdownRequested() {
 		return
 	}
+<<<<<<< HEAD
 	var payload []byte
 	if c.useOpus && c.opusEncoder != nil {
 		// PCM []byte 转 []int16
@@ -316,13 +372,29 @@ func (c *Client) onAudioData(audioData []byte) {
 	sequence := atomic.AddUint32(&c.sequence, 1)
 	audioPacket := NewAudioPacket(payload, sequence)
 	c.conn.SetWriteDeadline(time.Now().Add(c.config.WriteTimeout))
+=======
+	
+	// Create and send audio packet
+	sequence := atomic.AddUint32(&c.sequence, 1)
+	audioPacket := NewAudioPacket(audioData, sequence)
+	
+	// Set write timeout
+	c.conn.SetWriteDeadline(time.Now().Add(c.config.WriteTimeout))
+	
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	if err := WritePacket(c.conn, audioPacket); err != nil {
 		if atomic.LoadInt32(&c.connected) == 1 {
 			c.errorChan <- utils.WrapError(err, utils.ErrNetwork, "failed to send audio packet")
 		}
 		return
 	}
+<<<<<<< HEAD
 	atomic.AddInt64(&c.stats.BytesSent, int64(len(payload)+HeaderSize))
+=======
+	
+	// Update statistics
+	atomic.AddInt64(&c.stats.BytesSent, int64(len(audioData)+HeaderSize))
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 // audioStreamingLoop handles the main audio streaming logic
@@ -369,8 +441,12 @@ func (c *Client) audioStreamingLoop() {
 func (c *Client) heartbeatLoop() {
 	defer c.wg.Done()
 	
+<<<<<<< HEAD
 	// 使用配置中的心跳包间隔
 	ticker := time.NewTicker(c.config.HeartbeatInterval)
+=======
+	ticker := time.NewTicker(5 * time.Second)
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	defer ticker.Stop()
 	
 	for {
@@ -384,11 +460,14 @@ func (c *Client) heartbeatLoop() {
 				heartbeatStart := time.Now()
 				heartbeatPacket := NewHeartbeatPacket()
 				
+<<<<<<< HEAD
 				// 更新发送时间
 				c.heartbeatMutex.Lock()
 				c.lastHeartbeatSent = time.Now()
 				c.heartbeatMutex.Unlock()
 				
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 				c.conn.SetWriteDeadline(time.Now().Add(c.config.WriteTimeout))
 				if err := WritePacket(c.conn, heartbeatPacket); err != nil {
 					if atomic.LoadInt32(&c.connected) == 1 {
@@ -398,7 +477,10 @@ func (c *Client) heartbeatLoop() {
 					c.lastHeartbeat = time.Now()
 					// 计算 RTT (Round Trip Time)
 					c.stats.RoundTripTime = time.Since(heartbeatStart)
+<<<<<<< HEAD
 					c.logger.Debug("💓 Heartbeat sent")
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 				}
 			}
 		}
@@ -429,6 +511,7 @@ func (c *Client) errorHandlingLoop() {
 	}
 }
 
+<<<<<<< HEAD
 // packetProcessingLoop processes incoming packets from the server
 func (c *Client) packetProcessingLoop() {
 	defer c.wg.Done()
@@ -481,6 +564,8 @@ func (c *Client) packetProcessingLoop() {
 	}
 }
 
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 // IsConnected returns whether the client is currently connected
 func (c *Client) IsConnected() bool {
 	return atomic.LoadInt32(&c.connected) == 1

@@ -15,7 +15,10 @@ type Config struct {
 	// Network settings
 	Host string
 	Port int
+<<<<<<< HEAD
 	AllowClients []string // 允许的客户端IP白名单
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 
 	// Audio device settings (string identifiers)
 	InputDevice  string
@@ -38,6 +41,7 @@ type Config struct {
 	ReadTimeout   time.Duration
 	WriteTimeout  time.Duration
 
+<<<<<<< HEAD
 	// Keepalive settings
 	HeartbeatInterval time.Duration
 	HeartbeatTimeout  time.Duration
@@ -55,6 +59,11 @@ type Config struct {
 	ExcitationThreshold float64
 	// Excitation timeout in seconds (e.g. 10)
 	ExcitationTimeout int
+=======
+	// Quality settings
+	Compression   bool
+	NoiseReduction bool
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 // NewDefaultConfig creates a new configuration with default values
@@ -74,6 +83,7 @@ func NewDefaultConfig() *Config {
 		BufferSize:      4096,
 		BufferCount:     4,
 		ConnTimeout:     10 * time.Second,
+<<<<<<< HEAD
 		ReadTimeout:     15 * time.Second,  // 增加到15秒，给心跳包更多时间
 		WriteTimeout:    5 * time.Second,
 		HeartbeatInterval: 5 * time.Second,  // 心跳包发送间隔
@@ -85,6 +95,12 @@ func NewDefaultConfig() *Config {
 		EnableExcitation: false,
 		ExcitationThreshold: -45.0,
 		ExcitationTimeout: 10,
+=======
+		ReadTimeout:     5 * time.Second,
+		WriteTimeout:    5 * time.Second,
+		Compression:     false,
+		NoiseReduction:  false,
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 }
 

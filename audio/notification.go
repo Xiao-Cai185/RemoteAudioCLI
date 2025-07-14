@@ -34,6 +34,7 @@ func NewNotificationPlayer(device *DeviceInfo, config *utils.Config, logger *uti
 	}
 }
 
+<<<<<<< HEAD
 // PlayConnectionSound 播放连接提示音，返回播放完成通道
 func (np *NotificationPlayer) PlayConnectionSound() chan struct{} {
 	done := make(chan struct{})
@@ -62,6 +63,27 @@ func (np *NotificationPlayer) PlayConnectionSound() chan struct{} {
 	}()
 	
 	return done
+=======
+// PlayConnectionSound 播放连接提示音
+func (np *NotificationPlayer) PlayConnectionSound() {
+	np.mutex.Lock()
+	defer np.mutex.Unlock()
+
+	np.logger.Info("🔊 Playing connection sound")
+
+	// 查找连接音频文件
+	soundPath := np.findSoundFile("connecting")
+	if soundPath != "" {
+		np.logger.Infof("🎵 Found connection sound: %s", soundPath)
+		if err := np.playAudioFile(soundPath); err != nil {
+			np.logger.Warnf("Failed to play connection sound: %v, using system beep", err)
+			np.playSystemBeep()
+		}
+	} else {
+		np.logger.Warn("Connection sound file not found, using system beep")
+		np.playSystemBeep()
+	}
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 // PlayDisconnectionSound 播放断开连接提示音
@@ -85,6 +107,7 @@ func (np *NotificationPlayer) PlayDisconnectionSound() {
 	}
 }
 
+<<<<<<< HEAD
 // PlayStartupBeep 启动后播放4声不同音调蜂鸣
 func (np *NotificationPlayer) PlayStartupBeep() {
 	np.mutex.Lock()
@@ -93,6 +116,8 @@ func (np *NotificationPlayer) PlayStartupBeep() {
 	np.playStartupBeep()
 }
 
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 // findSoundFile 查找音频文件
 func (np *NotificationPlayer) findSoundFile(soundType string) string {
 	// 可能的音频文件路径和扩展名
@@ -148,6 +173,7 @@ func (np *NotificationPlayer) playDoubleBeep() {
 	np.generateBeepTone(400, 150) // 第二声: 400Hz, 150ms (更低音调)
 }
 
+<<<<<<< HEAD
 // playStartupBeep 侦听启动时播放4声不同音调蜂鸣
 func (np *NotificationPlayer) playStartupBeep() {
 	sampleRate := int(np.device.DefaultSampleRate)
@@ -191,6 +217,12 @@ func (np *NotificationPlayer) generateBeepTone(frequency float64, durationMs int
 	if sampleRate <= 0 {
 		sampleRate = 48000
 	}
+=======
+// generateBeepTone 生成蜂鸣声音调
+func (np *NotificationPlayer) generateBeepTone(frequency float64, durationMs int) {
+	// 简化的蜂鸣声生成
+	sampleRate := 44100
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	duration := time.Duration(durationMs) * time.Millisecond
 	samples := int(float64(sampleRate) * duration.Seconds())
 	
@@ -216,7 +248,11 @@ func (np *NotificationPlayer) playRawAudio(audioData []int16, sampleRate int) {
 		return
 	}
 
+<<<<<<< HEAD
 	// 创建输出参数，使用更保守的设置
+=======
+	// 创建输出参数
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	outputParams := portaudio.StreamParameters{
 		Output: portaudio.StreamDeviceParameters{
 			Device:   paDevice,
@@ -224,11 +260,19 @@ func (np *NotificationPlayer) playRawAudio(audioData []int16, sampleRate int) {
 			Latency:  paDevice.DefaultLowOutputLatency,
 		},
 		SampleRate:      float64(sampleRate),
+<<<<<<< HEAD
 		FramesPerBuffer: 1024, // 增加缓冲区大小，减少下溢风险
 	}
 
 	// 创建输出缓冲区
 	outputBuffer := make([]int16, 1024)
+=======
+		FramesPerBuffer: 512,
+	}
+
+	// 创建输出缓冲区
+	outputBuffer := make([]int16, 512)
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 
 	// 创建流
 	stream, err := portaudio.OpenStream(outputParams, outputBuffer)
@@ -245,9 +289,12 @@ func (np *NotificationPlayer) playRawAudio(audioData []int16, sampleRate int) {
 	}
 	defer stream.Stop()
 
+<<<<<<< HEAD
 	// 等待一小段时间让设备稳定
 	time.Sleep(50 * time.Millisecond)
 
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// 播放音频数据
 	for i := 0; i < len(audioData); i += len(outputBuffer) {
 		// 清空缓冲区
@@ -263,6 +310,7 @@ func (np *NotificationPlayer) playRawAudio(audioData []int16, sampleRate int) {
 
 		copy(outputBuffer, audioData[i:end])
 
+<<<<<<< HEAD
 		// 写入流，添加重试机制
 		maxRetries := 3
 		for retry := 0; retry < maxRetries; retry++ {
@@ -283,6 +331,14 @@ func (np *NotificationPlayer) playRawAudio(audioData []int16, sampleRate int) {
 
 	// 等待音频播放完成
 	time.Sleep(100 * time.Millisecond)
+=======
+		// 写入流
+		if err := stream.Write(); err != nil {
+			np.logger.Errorf("Failed to write to audio stream: %v", err)
+			return
+		}
+	}
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 // playAudioFile 播放音频文件

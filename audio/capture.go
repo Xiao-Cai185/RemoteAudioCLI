@@ -278,6 +278,7 @@ func (c *Capturer) captureLoop() {
 	frameSize := c.config.GetFrameSize()
 	audioBuffer := make([]byte, c.config.FramesPerBuffer*frameSize)
 
+<<<<<<< HEAD
 	// Add excitation streaming logic
 	excitationEnabled := c.config.EnableExcitation
 	excitationThreshold := c.config.ExcitationThreshold
@@ -285,6 +286,8 @@ func (c *Capturer) captureLoop() {
 	silentSince := time.Time{}
 	streaming := true
 
+=======
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	for atomic.LoadInt32(&c.running) == 1 {
 		startTime := time.Now()
 
@@ -315,6 +318,7 @@ func (c *Capturer) captureLoop() {
 		decibelLevel := c.calculateDecibels(audioBuffer)
 		c.updateDecibelLevel(decibelLevel)
 
+<<<<<<< HEAD
 		// Excitation logic - 只影响音频数据发送，不影响心跳包
 		if excitationEnabled {
 			if decibelLevel < excitationThreshold {
@@ -345,6 +349,15 @@ func (c *Capturer) captureLoop() {
 		if streaming {
 			atomic.AddInt64(&c.stats.FramesProcessed, int64(c.config.FramesPerBuffer))
 		}
+=======
+		// Call the callback with audio data
+		if c.callback != nil {
+			c.callback(audioBuffer)
+		}
+
+		// Update statistics
+		atomic.AddInt64(&c.stats.FramesProcessed, int64(c.config.FramesPerBuffer))
+>>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		
 		// Calculate processing latency
 		processingTime := time.Since(startTime)
