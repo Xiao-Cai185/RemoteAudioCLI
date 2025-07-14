@@ -11,10 +11,7 @@ import (
 
 	"RemoteAudioCLI/audio"
 	"RemoteAudioCLI/utils"
-<<<<<<< HEAD
 	"github.com/hraban/opus"
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 )
 
 // Server represents a network server for audio streaming
@@ -30,13 +27,10 @@ type Server struct {
 	clientConn  net.Conn
 	connected   int32 // atomic bool
 	
-<<<<<<< HEAD
 	// Connection keepalive tracking
 	lastActivity time.Time
 	activityMutex sync.RWMutex
 	
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// Audio configuration (negotiated during handshake)
 	audioConfig *HandshakeConfig
 	
@@ -53,12 +47,9 @@ type Server struct {
 	
 	// Connection management
 	connectionMutex sync.Mutex
-<<<<<<< HEAD
 	
 	opusDecoder *opus.Decoder
 	useOpus     bool
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 // NewServer creates a new network server
@@ -97,7 +88,6 @@ func (s *Server) Start(outputDevice *audio.DeviceInfo) error {
 	s.logger.Info("💡 Press Ctrl+C to stop the server")
 	atomic.StoreInt32(&s.running, 1)
 	
-<<<<<<< HEAD
 	// 等待一小段时间让系统稳定
 	time.Sleep(200 * time.Millisecond)
 	
@@ -110,8 +100,6 @@ func (s *Server) Start(outputDevice *audio.DeviceInfo) error {
 		}()
 	}
 	
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// Accept connections in a loop
 	for atomic.LoadInt32(&s.running) == 1 && !IsShutdownRequested() {
 		// 设置接受连接的超时，以便检查关闭信号
@@ -136,7 +124,6 @@ func (s *Server) Start(outputDevice *audio.DeviceInfo) error {
 		
 		s.logger.Info("🔗 Client connected from: " + conn.RemoteAddr().String())
 		
-<<<<<<< HEAD
 		// 在 Start 方法或主 accept 循环处加白名单校验
 		// 伪代码：
 		// for {
@@ -161,8 +148,6 @@ func (s *Server) Start(outputDevice *audio.DeviceInfo) error {
 			continue
 		}
 		
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		// 使用互斥锁保护连接状态检查
 		s.connectionMutex.Lock()
 		if atomic.LoadInt32(&s.connected) == 1 {
@@ -176,7 +161,6 @@ func (s *Server) Start(outputDevice *audio.DeviceInfo) error {
 		atomic.StoreInt32(&s.connected, 1)
 		s.connectionMutex.Unlock()
 		
-<<<<<<< HEAD
 		// 播放连接提示音（延迟3秒，且连接还存活才播放）
 		connectionSoundDone := make(chan struct{})
 		go func() {
@@ -194,14 +178,6 @@ func (s *Server) Start(outputDevice *audio.DeviceInfo) error {
 		// Handle the client connection in a separate goroutine
 		// 关键修改：使用 goroutine 处理客户端连接，避免阻塞主循环
 		go s.handleClient(conn, outputDevice, connectionSoundDone)
-=======
-		// 播放连接提示音
-		go s.notificationPlayer.PlayConnectionSound()
-		
-		// Handle the client connection in a separate goroutine
-		// 关键修改：使用 goroutine 处理客户端连接，避免阻塞主循环
-		go s.handleClient(conn, outputDevice)
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 	
 	s.logger.Info("✅ Server stopped")
@@ -259,7 +235,6 @@ func (s *Server) cleanupClientSession() {
 		go s.notificationPlayer.PlayDisconnectionSound()
 	}
 	
-<<<<<<< HEAD
 	// 更新连接状态
 	s.connectionMutex.Lock()
 	atomic.StoreInt32(&s.connected, 0)
@@ -268,21 +243,12 @@ func (s *Server) cleanupClientSession() {
 	s.connectionMutex.Unlock()
 	
 	// 清理音频播放器
-=======
-	// 注意：不在这里关闭 clientStopChan，因为 handleClient 的 defer 函数会处理它
-	
-	// 等待客户端 goroutine 结束（这个等待已在 handleClient 的 defer 中完成）
-	// 这里不需要再次等待，避免死锁
-	
-	// Stop audio player
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	if s.player != nil {
 		s.player.Stop()
 		s.player.Terminate()
 		s.player = nil
 	}
 	
-<<<<<<< HEAD
 	// 清理Opus解码器
 	if s.opusDecoder != nil {
 		s.opusDecoder = nil
@@ -301,27 +267,6 @@ func (s *Server) cleanupClientSession() {
 		s.logger.Info("🔄 Client disconnected, waiting for new connections...")
 		s.logger.Info("📡 Server is ready to accept new client connections")
 	}
-=======
-	// Close client connection
-	if s.clientConn != nil {
-		s.clientConn.Close()
-		s.clientConn = nil
-	}
-	
-	// Reset connection state
-	atomic.StoreInt32(&s.connected, 0)
-	DecrementConnections()
-	
-	// Reset statistics
-	atomic.StoreInt64(&s.stats.BytesSent, 0)
-	atomic.StoreInt64(&s.stats.BytesReceived, 0)
-	atomic.StoreInt64(&s.stats.ErrorCount, 0)
-	
-	s.logger.Info("✅ Client session cleaned up")
-	
-	// 关键修改：显式记录准备接受新连接的状态
-	s.logger.Info("🔄 Ready for new client connections...")
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 // startListening creates and starts the TCP listener
@@ -338,25 +283,18 @@ func (s *Server) startListening() error {
 }
 
 // handleClient handles a single client connection
-<<<<<<< HEAD
 func (s *Server) handleClient(conn net.Conn, outputDevice *audio.DeviceInfo, connectionSoundDone chan struct{}) {
-=======
-func (s *Server) handleClient(conn net.Conn, outputDevice *audio.DeviceInfo) {
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// 为这个客户端会话创建新的控制通道
 	clientStopChan := make(chan struct{})
 	s.clientStopChan = &clientStopChan
 	s.clientConn = conn
 	IncrementConnections()
 	
-<<<<<<< HEAD
 	// 初始化连接活跃时间
 	s.activityMutex.Lock()
 	s.lastActivity = time.Now()
 	s.activityMutex.Unlock()
 	
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// 创建一个用于协调清理的context
 	sessionDone := make(chan struct{})
 	
@@ -413,7 +351,6 @@ func (s *Server) handleClient(conn net.Conn, outputDevice *audio.DeviceInfo) {
 	
 	s.logger.Info("🔊 Audio player initialized")
 	
-<<<<<<< HEAD
 	// 等待连接音效播放完成后再启动音频播放
 	go func() {
 		<-connectionSoundDone
@@ -434,16 +371,6 @@ func (s *Server) handleClient(conn net.Conn, outputDevice *audio.DeviceInfo) {
 		s.logger.Info("🚀 Server ready - waiting for audio data...")
 		s.logger.Info("📊 Real-time statistics will appear below:")
 	}()
-=======
-	// Start audio playback
-	if err := s.player.Start(); err != nil {
-		s.logger.Error(fmt.Sprintf("Failed to start audio player: %v", err))
-		return
-	}
-	
-	s.logger.Info("🚀 Server ready - waiting for audio data...")
-	s.logger.Info("📊 Real-time statistics will appear below:")
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	
 	// Start background routines for this client session
 	s.clientWg.Add(2)
@@ -477,7 +404,6 @@ func (s *Server) connectionMonitorLoop(conn net.Conn, stopChan chan struct{}, se
 			conn.Close()
 			return
 		case <-ticker.C:
-<<<<<<< HEAD
 			// 检查连接是否仍然活跃
 			if atomic.LoadInt32(&s.connected) == 0 {
 				return
@@ -499,12 +425,6 @@ func (s *Server) connectionMonitorLoop(conn net.Conn, stopChan chan struct{}, se
 			if time.Since(lastActivity) > s.config.HeartbeatTimeout {
 				s.logger.Warnf("⚠️  No heartbeat received for %v, connection may be unstable", time.Since(lastActivity))
 			}
-=======
-			// 定期检查连接状态
-			if atomic.LoadInt32(&s.connected) == 0 {
-				return
-			}
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		}
 	}
 }
@@ -554,7 +474,6 @@ func (s *Server) performHandshake(conn net.Conn) error {
 		return fmt.Errorf("failed to send handshake response: %w", err)
 	}
 	
-<<<<<<< HEAD
 	if clientConfig.Compression == 1 {
 		s.useOpus = true
 		var err error
@@ -569,8 +488,6 @@ func (s *Server) performHandshake(conn net.Conn) error {
 		s.logger.Info("🔊 Using PCM uncompressed audio")
 	}
 	
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	return nil
 }
 
@@ -609,14 +526,11 @@ func (s *Server) packetProcessingLoop(conn net.Conn, stopChan chan struct{}) {
 			return
 		}
 		
-<<<<<<< HEAD
 		// 更新连接活跃时间 - 收到任何数据包都表示连接活跃
 		s.activityMutex.Lock()
 		s.lastActivity = time.Now()
 		s.activityMutex.Unlock()
 		
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		// Update statistics
 		atomic.AddInt64(&s.stats.BytesReceived, int64(len(packet.Payload)+HeaderSize))
 		
@@ -642,7 +556,6 @@ func (s *Server) handleAudioPacket(packet *Packet) {
 	if s.player == nil {
 		return
 	}
-<<<<<<< HEAD
 	var pcmData []byte
 	if s.useOpus && s.opusDecoder != nil {
 		// Opus 解码
@@ -663,26 +576,15 @@ func (s *Server) handleAudioPacket(packet *Packet) {
 		pcmData = packet.Payload
 	}
 	s.player.QueueAudio(pcmData)
-=======
-	
-	// Queue audio data for playback
-	if err := s.player.QueueAudio(packet.Payload); err != nil {
-		s.logger.Error(fmt.Sprintf("Failed to queue audio: %v", err))
-		atomic.AddInt64(&s.stats.ErrorCount, 1)
-	}
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 // handleHeartbeatPacket processes a heartbeat packet
 func (s *Server) handleHeartbeatPacket(conn net.Conn, packet *Packet) {
-<<<<<<< HEAD
 	// 更新连接活跃时间
 	s.activityMutex.Lock()
 	s.lastActivity = time.Now()
 	s.activityMutex.Unlock()
 	
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// Respond with heartbeat
 	responsePacket := NewHeartbeatPacket()
 	
@@ -692,10 +594,7 @@ func (s *Server) handleHeartbeatPacket(conn net.Conn, packet *Packet) {
 		atomic.AddInt64(&s.stats.ErrorCount, 1)
 	} else {
 		atomic.AddInt64(&s.stats.BytesSent, int64(HeaderSize))
-<<<<<<< HEAD
 		s.logger.Debug("💓 Heartbeat response sent")
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 }
 
@@ -766,7 +665,6 @@ func (s *Server) GetStats() *utils.NetworkStats {
 		RoundTripTime:  s.stats.RoundTripTime,
 		ErrorCount:     atomic.LoadInt64(&s.stats.ErrorCount),
 	}
-<<<<<<< HEAD
 }
 
 // 新增 isIPAllowed 工具函数
@@ -780,6 +678,4 @@ func isIPAllowed(ip string, allowList []string) bool {
 		}
 	}
 	return false
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }

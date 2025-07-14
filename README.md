@@ -1,11 +1,7 @@
 # 🎧 **Remote Audio CLI**
 
 A lightweight, command-line remote audio streaming application written in Go.
-<<<<<<< HEAD
 Stream audio between devices over the network with low latency and compression support.
-=======
-Stream audio between devices over the network with low latency.
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 
 ---
 
@@ -16,7 +12,6 @@ Stream audio between devices over the network with low latency.
 * 💻 Cross-platform audio device support
 * ⚡ Low-latency streaming
 * 🛠️ Command-line interface
-<<<<<<< HEAD
 * 🎵 Audio compression support (Opus codec)
 * 🎚️ Multiple stream quality modes
 * 🔄 Excitation mode (pause streaming when silent)
@@ -25,8 +20,6 @@ Stream audio between devices over the network with low latency.
 * ⏰ Graceful shutdown with countdown
 * 🔒 Client IP whitelist support
 * 🎯 Configurable excitation timeout
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 
 ---
 
@@ -84,7 +77,6 @@ Stream audio between devices over the network with low latency.
 
 ---
 
-<<<<<<< HEAD
 ### 🎵 **Stream Quality Modes**
 
 #### **Very Low Quality** (8kHz, mono, 16-bit)
@@ -159,8 +151,6 @@ Restrict server connections to specific client IPs:
 
 ---
 
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 ### 🎙️ **List Available Audio Devices**
 
 ```bash
@@ -177,7 +167,6 @@ Just run without any parameters:
 ./RemoteAudioCli.exe
 ```
 
-<<<<<<< HEAD
 The wizard will guide you through:
 * Mode selection (Server/Client)
 * Device selection
@@ -188,8 +177,6 @@ The wizard will guide you through:
 * Client IP whitelist (server mode)
 * Custom audio parameters
 
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 ---
 
 ### 📖 **Show Help Information**
@@ -240,7 +227,6 @@ go build -o RemoteAudioCli.exe main.go
 
 ---
 
-<<<<<<< HEAD
 ### 🔧 **MSYS2 MINGW64 Shell Build**
 
 For building on Windows with MSYS2 MINGW64 Shell, install the required dependencies:
@@ -365,10 +351,3 @@ The application supports graceful shutdown with countdown:
 # Complete guided configuration
 ./RemoteAudioCli.exe
 ```
-=======
-## 📦 **Dependencies**
-
-* [github.com/gordonklaus/portaudio](https://github.com/gordonklaus/portaudio)
-
----
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31

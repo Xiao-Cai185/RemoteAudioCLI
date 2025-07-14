@@ -122,7 +122,6 @@ type Player struct {
 	decibelMutex sync.RWMutex
 	currentDB    float64
 	
-<<<<<<< HEAD
 	// 渐入效果相关
 	fadeInMutex    sync.RWMutex
 	fadeInProgress float64 // 0.0 到 1.0，表示渐入进度
@@ -130,8 +129,6 @@ type Player struct {
 	fadeInStartTime time.Time
 	isFadingIn      bool
 	
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	// Control
 	stopChan chan struct{}
 	wg       sync.WaitGroup
@@ -146,10 +143,7 @@ func NewPlayer(device *DeviceInfo, config *utils.Config, logger *utils.Logger) *
 		buffer:   NewAudioBuffer(config.BufferCount * 2), // Extra buffers for safety
 		stopChan: make(chan struct{}),
 		currentDB: -60.0, // 默认静音级别
-<<<<<<< HEAD
 		fadeInDuration: 5 * time.Second, // 5秒渐入时间
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		stats: &utils.AudioStats{
 			FramesProcessed: 0,
 			DroppedFrames:   0,
@@ -268,11 +262,7 @@ func (p *Player) Initialize() error {
 			fmt.Sprintf("unsupported bit depth: %d", p.config.BitDepth))
 	}
 
-<<<<<<< HEAD
 	// Create stream parameters with more conservative settings
-=======
-	// Create stream parameters
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	outputParams := portaudio.StreamParameters{
 		Output: portaudio.StreamDeviceParameters{
 			Device:   paDevice,
@@ -313,12 +303,9 @@ func (p *Player) Start() error {
 		return utils.WrapError(err, utils.ErrAudioPlayback, "failed to start audio stream")
 	}
 
-<<<<<<< HEAD
 	// 等待一小段时间让音频设备稳定
 	time.Sleep(100 * time.Millisecond)
 
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	atomic.StoreInt32(&p.running, 1)
 
 	// Start playback loop
@@ -329,7 +316,6 @@ func (p *Player) Start() error {
 	return nil
 }
 
-<<<<<<< HEAD
 // StartWithFadeIn 延迟启动音频播放并应用渐入效果
 func (p *Player) StartWithFadeIn(delay time.Duration) error {
 	if p == nil {
@@ -374,8 +360,6 @@ func (p *Player) StartWithFadeIn(delay time.Duration) error {
 	return nil
 }
 
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 // Stop stops audio playback
 func (p *Player) Stop() {
 	if atomic.LoadInt32(&p.running) == 0 {
@@ -453,7 +437,6 @@ func (p *Player) playbackLoop() {
 		audioData, hasData := p.buffer.Read()
 		
 		var dataToPlay []byte
-<<<<<<< HEAD
 		var isActualAudio bool = false
 		if hasData && len(audioData) == p.config.FramesPerBuffer*frameSize {
 			dataToPlay = audioData
@@ -461,10 +444,6 @@ func (p *Player) playbackLoop() {
 			
 			// 应用渐入效果
 			dataToPlay = p.applyFadeInEffect(dataToPlay)
-=======
-		if hasData && len(audioData) == p.config.FramesPerBuffer*frameSize {
-			dataToPlay = audioData
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 			
 			// 计算播放音频的分贝级别
 			decibelLevel := p.calculateDecibels(audioData)
@@ -485,7 +464,6 @@ func (p *Player) playbackLoop() {
 			continue
 		}
 
-<<<<<<< HEAD
 		// Write audio data to stream with retry mechanism
 		maxRetries := 3
 		var writeErr error
@@ -512,16 +490,6 @@ func (p *Player) playbackLoop() {
 			
 			// Check if this is a critical error
 			if writeErr == portaudio.OutputUnderflowed {
-=======
-		// Write audio data to stream
-		err := p.stream.Write()
-		if err != nil {
-			p.logger.Error(fmt.Sprintf("Failed to write to audio stream: %v", err))
-			atomic.AddInt64(&p.stats.DroppedFrames, int64(p.config.FramesPerBuffer))
-			
-			// Check if this is a critical error
-			if err == portaudio.OutputUnderflowed {
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 				p.logger.Warn("Output buffer underflow detected")
 			} else {
 				// For other errors, we might want to stop
@@ -530,15 +498,10 @@ func (p *Player) playbackLoop() {
 			continue
 		}
 
-<<<<<<< HEAD
 		// Update statistics - 只有在播放实际音频数据时才更新帧数统计
 		if isActualAudio {
 			atomic.AddInt64(&p.stats.FramesProcessed, int64(p.config.FramesPerBuffer))
 		}
-=======
-		// Update statistics
-		atomic.AddInt64(&p.stats.FramesProcessed, int64(p.config.FramesPerBuffer))
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		
 		// Calculate processing latency
 		processingTime := time.Since(startTime)
@@ -549,7 +512,6 @@ func (p *Player) playbackLoop() {
 	p.logger.Debug("Audio playback loop ended")
 }
 
-<<<<<<< HEAD
 // applyFadeInEffect 应用渐入效果到音频数据
 func (p *Player) applyFadeInEffect(audioData []byte) []byte {
 	p.fadeInMutex.RLock()
@@ -625,8 +587,6 @@ func (p *Player) applyFadeInEffect(audioData []byte) []byte {
 	return result
 }
 
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 // convertAndWriteAudioData converts bytes to the appropriate format and writes to stream buffer
 func (p *Player) convertAndWriteAudioData(audioData []byte) error {
 	if p.outputBuffer == nil {

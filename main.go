@@ -10,19 +10,13 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
-<<<<<<< HEAD
 	"sync/atomic"
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	"syscall"
 	"embed"
 	"io/fs"
 	"io/ioutil"
 	"path/filepath"
-<<<<<<< HEAD
 	"time"
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 
 	"RemoteAudioCLI/audio"
 	"RemoteAudioCLI/network"
@@ -41,15 +35,12 @@ func main() {
 		outputDevice = flag.String("output-device", "", "Output audio device name or index")
 		listDevices  = flag.Bool("list-devices", false, "List all available audio devices")
 		help         = flag.Bool("help", false, "Show help information")
-<<<<<<< HEAD
 		quality      = flag.String("quality", "normal", "Stream quality: verylow, low, normal, high, lossless")
 		compress     = flag.String("compress", "", "Compression mode: 'yes' (Opus) or 'no' (PCM)")
 		excitation   = flag.Bool("excitation", false, "Enable excitation mode (pause streaming when silent)")
 		excitationThreshold = flag.Float64("excitation-threshold", -45.0, "Excitation threshold in dB")
 		excitationTimeout   = flag.Int("excitation-timeout", 10, "Excitation timeout in seconds")
 		allowClient = flag.String("allow-client", "", "Comma-separated list of allowed client IPs (whitelist, default: allow all)")
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	)
 
 	flag.Parse()
@@ -62,20 +53,12 @@ func main() {
 
 	// Initialize logger
 	logger := utils.NewLogger()
-<<<<<<< HEAD
 	logger.Info("🎵 Remote Audio CLI - Starting Application")
-=======
-	logger.Info("🎵 Remote Audio Go - Starting Application")
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 
 	// Initialize audio system EARLY - before any device operations
 	if err := audio.Initialize(); err != nil {
 		logger.Error(fmt.Sprintf("Failed to initialize audio system: %v", err))
-<<<<<<< HEAD
 		gracefulExitWithCode(logger, 1)
-=======
-		os.Exit(1)
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 	defer audio.Terminate()
 
@@ -109,7 +92,6 @@ func main() {
 		if config.Mode == "" {
 			config.Mode = promptModeSelection(logger)
 		}
-<<<<<<< HEAD
 
 		config.StreamQuality = parseQualityArg(*quality)
 		applyQualityParams(config)
@@ -124,8 +106,6 @@ func main() {
 			}
 			config.AllowClients = ips
 		}
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	} else {
 		// Interactive mode - prompt for all settings
 		logger.Info("🔧 Interactive Setup Mode")
@@ -135,11 +115,7 @@ func main() {
 	// Validate mode
 	if config.Mode != "server" && config.Mode != "client" {
 		logger.Error("Invalid mode. Must be 'server' or 'client'")
-<<<<<<< HEAD
 		gracefulExitWithCode(logger, 1)
-=======
-		os.Exit(1)
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 
 	logger.Info(fmt.Sprintf("Operating in %s mode", strings.ToUpper(config.Mode)))
@@ -154,7 +130,6 @@ func main() {
 	case "client":
 		startClient(config, logger)
 	}
-<<<<<<< HEAD
 	
 	// 如果程序执行到这里，说明服务端或客户端已经正常退出
 	// 检查是否已经在关闭过程中
@@ -168,16 +143,10 @@ func main() {
 		time.Sleep(10 * time.Second)
 	}
 }
-=======
-}
-// //go:embed dll/libportaudio.dll
-// var portAudioDLL []byte
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 
 //go:embed sound/*.mp3
 var soundFiles embed.FS
 
-<<<<<<< HEAD
 // 全局变量用于管理退出状态
 var (
 	isShuttingDown int32 // atomic bool
@@ -217,33 +186,6 @@ func gracefulExitWithCode(logger *utils.Logger, exitCode int) {
 		time.Sleep(100 * time.Millisecond)
 	}
 }
-=======
-// // 释放 libportaudio.dll
-// func exportPortAudioDLL() {
-// 	exePath, err := os.Executable()
-// 	if err != nil {
-// 		fmt.Printf("Failed to locate executable path: %v\n", err)
-// 		os.Exit(1)
-// 	}
-// 	exePath, err = filepath.EvalSymlinks(exePath)
-// 	if err != nil {
-// 		fmt.Printf("Failed to resolve executable path: %v\n", err)
-// 		os.Exit(1)
-// 	}
-// 	exeDir := filepath.Dir(exePath)
-// 	dllPath := filepath.Join(exeDir, "libportaudio.dll")
-
-// 	fmt.Printf("Extracting DLL to: %s\n", dllPath)
-
-// 	err = ioutil.WriteFile(dllPath, portAudioDLL, 0644)
-// 	if err != nil {
-// 		fmt.Printf("Failed to extract libportaudio.dll: %v\n", err)
-// 		os.Exit(1)
-// 	}
-// }
-
-
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 
 // 释放 sound 目录下的 mp3
 func exportSoundFiles() {
@@ -309,12 +251,9 @@ func interactiveSetup(logger *utils.Logger) *utils.Config {
 		// Step 3: Set server port
 		config.Port = promptServerPort(logger, reader)
 
-<<<<<<< HEAD
 		// Step 4: Set allowed client IPs (whitelist)
 		config.AllowClients = promptAllowedClientIPs(logger)
 
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		// Set default host for server
 		config.Host = "0.0.0.0" // Listen on all interfaces
 
@@ -336,7 +275,6 @@ func interactiveSetup(logger *utils.Logger) *utils.Config {
 			// 使用 interface{} 存储，避免类型问题
 			config.SelectedInputDevice = inputDevice
 		}
-<<<<<<< HEAD
 		// Step 5: Select stream quality
 		config.StreamQuality = promptStreamQuality(logger)
 		if config.StreamQuality == "custom" {
@@ -352,8 +290,6 @@ func interactiveSetup(logger *utils.Logger) *utils.Config {
 		if config.EnableExcitation {
 			config.ExcitationTimeout = promptExcitationTimeout(logger)
 		}
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 
 	fmt.Println("")
@@ -366,12 +302,9 @@ func interactiveSetup(logger *utils.Logger) *utils.Config {
 				fmt.Printf("   Output device: %s\n", device.Name)
 			}
 		}
-<<<<<<< HEAD
 		if len(config.AllowClients) > 0 {
 			fmt.Printf("   Allowed Clients: %s\n", strings.Join(config.AllowClients, ", "))
 		}
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	} else {
 		fmt.Printf("   Server: %s:%d\n", config.Host, config.Port)
 		if config.SelectedInputDevice != nil {
@@ -379,11 +312,8 @@ func interactiveSetup(logger *utils.Logger) *utils.Config {
 				fmt.Printf("   Input device: %s\n", device.Name)
 			}
 		}
-<<<<<<< HEAD
 		fmt.Printf("   Quality: %s\n", config.StreamQuality)
 		fmt.Printf("   Compression: %s\n", getCompressionModeName(config.Compression))
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 
 	return config
@@ -628,7 +558,6 @@ func setupSignalHandling(logger *utils.Logger) {
 		<-c
 		logger.Info("\n🛑 Received shutdown signal, gracefully stopping...")
 		
-<<<<<<< HEAD
 		// 立即触发网络模块关闭，执行程序终止操作
 		network.NotifyShutdown()
 		
@@ -638,28 +567,14 @@ func setupSignalHandling(logger *utils.Logger) {
 		
 		// 然后进行倒计时退出
 		gracefulExit(logger)
-=======
-		// Trigger cleanup
-		network.NotifyShutdown()
-		
-		logger.Info("✅ Shutdown complete")
-		os.Exit(0)
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}()
 }
 
 func showHelp() {
-<<<<<<< HEAD
 	fmt.Println("🎵 Remote Audio CLI - Real-time Audio Streaming")
 	fmt.Println("")
 	fmt.Println("USAGE:")
 	fmt.Println("  RemoteAudioCLI [OPTIONS]")
-=======
-	fmt.Println("🎵 Remote Audio Go - Real-time Audio Streaming")
-	fmt.Println("")
-	fmt.Println("USAGE:")
-	fmt.Println("  RemoteAudioCli [OPTIONS]")
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	fmt.Println("")
 	fmt.Println("OPTIONS:")
 	fmt.Println("  -mode string")
@@ -676,7 +591,6 @@ func showHelp() {
 	fmt.Println("        List all available audio devices")
 	fmt.Println("  -help")
 	fmt.Println("        Show this help information")
-<<<<<<< HEAD
 	fmt.Println("  -quality string")
 	fmt.Println("        Stream quality: verylow, low, normal, high, lossless (default: normal)")
 	fmt.Println("  -compress string")
@@ -712,25 +626,6 @@ func showHelp() {
 	fmt.Println("")
 	fmt.Println("  # List available audio devices")
 	fmt.Println("  RemoteAudioCLI -list-devices")
-=======
-	fmt.Println("")
-	fmt.Println("INTERACTIVE MODE:")
-	fmt.Println("  Run without arguments for interactive setup:")
-	fmt.Println("  RemoteAudioCli")
-	fmt.Println("")
-	fmt.Println("EXAMPLES:")
-	fmt.Println("  # Interactive mode")
-	fmt.Println("  RemoteAudioCli")
-	fmt.Println("")
-	fmt.Println("  # Start server on port 8080")
-	fmt.Println("  RemoteAudioCli -mode=server -port=8080")
-	fmt.Println("")
-	fmt.Println("  # Connect client to server")
-	fmt.Println("  RemoteAudioCli -mode=client -host=192.168.1.100 -port=8080")
-	fmt.Println("")
-	fmt.Println("  # List available audio devices")
-	fmt.Println("  RemoteAudioCli -list-devices")
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
 
 func listAudioDevices(logger *utils.Logger) {
@@ -790,16 +685,11 @@ func startServer(config *utils.Config, logger *utils.Logger) {
 
 	// 检查是否有交互式选择的设备
 	if config.SelectedOutputDevice != nil {
-<<<<<<< HEAD
-=======
-		// 类型断言，将 interface{} 转换为 *audio.DeviceInfo
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		if device, ok := config.SelectedOutputDevice.(*audio.DeviceInfo); ok {
 			outputDevice = device
 			logger.Info(fmt.Sprintf("Using selected output device: %s", outputDevice.Name))
 		} else {
 			logger.Error("Invalid selected output device type")
-<<<<<<< HEAD
 			gracefulExitWithCode(logger, 1)
 		}
 	} else {
@@ -807,16 +697,6 @@ func startServer(config *utils.Config, logger *utils.Logger) {
 		if err != nil {
 			logger.Error(fmt.Sprintf("Failed to get output device: %v", err))
 			gracefulExitWithCode(logger, 1)
-=======
-			os.Exit(1)
-		}
-	} else {
-		// 使用命令行指定的设备或默认设备
-		outputDevice, err = getOutputDevice(config.OutputDevice, logger)
-		if err != nil {
-			logger.Error(fmt.Sprintf("Failed to get output device: %v", err))
-			os.Exit(1)
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		}
 	}
 
@@ -824,18 +704,11 @@ func startServer(config *utils.Config, logger *utils.Logger) {
 	server := network.NewServer(config, logger)
 	if err := server.Start(outputDevice); err != nil {
 		logger.Error(fmt.Sprintf("Server failed: %v", err))
-<<<<<<< HEAD
 		gracefulExitWithCode(logger, 1)
 	}
 }
 
 // 在 startClient 里捕获 capturer 初始化失败时自动回退 bit depth
-=======
-		os.Exit(1)
-	}
-}
-
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 func startClient(config *utils.Config, logger *utils.Logger) {
 	logger.Info(fmt.Sprintf("🖥️ Starting client, connecting to %s:%d", config.Host, config.Port))
 
@@ -850,18 +723,13 @@ func startClient(config *utils.Config, logger *utils.Logger) {
 			logger.Info(fmt.Sprintf("Using selected input device: %s", inputDevice.Name))
 		} else {
 			logger.Error("Invalid selected input device type")
-<<<<<<< HEAD
 			gracefulExitWithCode(logger, 1)
-=======
-			os.Exit(1)
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 		}
 	} else {
 		// 使用命令行指定的设备或默认设备
 		inputDevice, err = getInputDevice(config.InputDevice, logger)
 		if err != nil {
 			logger.Error(fmt.Sprintf("Failed to get input device: %v", err))
-<<<<<<< HEAD
 			gracefulExitWithCode(logger, 1)
 		}
 	}
@@ -882,17 +750,6 @@ func startClient(config *utils.Config, logger *utils.Logger) {
 		}
 		logger.Error(fmt.Sprintf("Client failed: %v", err))
 		gracefulExitWithCode(logger, 1)
-=======
-			os.Exit(1)
-		}
-	}
-
-	// Create and start client
-	client := network.NewClient(config, logger)
-	if err := client.Start(inputDevice); err != nil {
-		logger.Error(fmt.Sprintf("Client failed: %v", err))
-		os.Exit(1)
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 	}
 }
 
@@ -982,7 +839,6 @@ func getOutputDevice(deviceSpec string, logger *utils.Logger) (*audio.DeviceInfo
 	}
 
 	return nil, fmt.Errorf("output device not found: %s", deviceSpec)
-<<<<<<< HEAD
 }
 
 func promptStreamQuality(logger *utils.Logger) string {
@@ -1240,6 +1096,4 @@ func promptExcitationTimeout(logger *utils.Logger) int {
 	}
 	fmt.Println("Invalid input, using default 5 seconds.")
 	return 5
-=======
->>>>>>> f22ae08551c5c9d0a35b183a89426ada56f9bc31
 }
